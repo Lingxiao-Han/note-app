@@ -10,14 +10,14 @@ class NoteDatabase {
     getById(id) {
         const note = this.notes[id];
         if (note) {
-            return note;
+            return note.content;
         }
         return null;
     }
 
-    create(note) {
+    create(id, note) {
         if (note != null) {
-            this.notes[note.id] = note;
+            this.notes[id] = note;
         }
         return note;
     }

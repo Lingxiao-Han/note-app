@@ -12,9 +12,11 @@ class NotesService {
     }
 
     createNote(noteData) {
-        const newNote = { id: Date.now().toString(), ...noteData };
-        return this.noteDatabase.create(newNote);
+        const id = Date.now().toString();
+        const newNote = { id, ...noteData };
+        return this.noteDatabase.create(id, newNote);
     }
+
 
     updateNote(id, noteData) {
         return this.noteDatabase.update(id, noteData);
