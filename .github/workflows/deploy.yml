@@ -13,6 +13,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    name: "Continuous Deployment"
 
     steps:
       - name: Checkout code
