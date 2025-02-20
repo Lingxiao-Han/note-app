@@ -5,6 +5,7 @@ on:
     branches:
       - main
 
+
 env:
   OPENSHIFT_PROJECT: ${{ secrets.OPENSHIFT_PROJECT }}
   BACKEND_IMAGE: notes-backend
