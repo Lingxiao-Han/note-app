@@ -40,20 +40,21 @@ jobs:
 
 
       - name: Deploy Backend
+        working-directory: server
         run: |
           oc get bc ${{ env.BACKEND_IMAGE }} || \
           oc new-build --name=${{ env.BACKEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source
-          oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=$GITHUB_WORKSPACE/server --follow
+          oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=. --follow
           oc rollout restart deployment/${{ env.BACKEND_IMAGE }}
 
-
       - name: Deploy Frontend
+        working-directory: client
         run: |
           oc get bc ${{ env.FRONTEND_IMAGE }} || \
           oc new-build --name=${{ env.FRONTEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source
-          oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=$GITHUB_WORKSPACE/client --follow
+          oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=. --follow
           oc rollout restart deployment/${{ env.FRONTEND_IMAGE }}
-        
+
 
       - name: Expose Services
         run: |
