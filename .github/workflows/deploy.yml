@@ -12,9 +12,9 @@ env:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
     name: "Continuous Deployment"
-
+    runs-on: ubuntu-latest
+  
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
