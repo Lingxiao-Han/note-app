@@ -38,8 +38,8 @@ jobs:
         run: |
           oc start-build ${{ env.BACKEND_IMAGE }} --follow || \
           oc new-build --name=${{ env.BACKEND_IMAGE }} --binary --strategy=source --to=${{ env.BACKEND_IMAGE }}:latest
-          oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=server --follow
-          oc rollout latest dc/${{ env.BACKEND_IMAGE }}
+          oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=./server --follow
+          oc rollout restart deployment/${{ env.BACKEND_IMAGE }}
 
       - name: Deploy Frontend
         run: |
