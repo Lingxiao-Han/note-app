@@ -48,6 +48,7 @@ jobs:
           oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=./sclient --follow
           oc rollout latest deployment/${{ env.FRONTEND_IMAGE }}
 
+
       - name: Expose Services
         run: |
           oc expose svc/${{ env.BACKEND_IMAGE }} --port=8000 --name=${{ env.BACKEND_IMAGE }}-route || true
