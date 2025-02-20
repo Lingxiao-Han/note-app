@@ -33,27 +33,29 @@ jobs:
       - name: Clean old builds
         run: |
           oc get builds -o name | xargs oc delete || true
-
       - name: Deploy Backend
         working-directory: ./server
         run: |
-          oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=. --follow || \
-          oc new-build --name=${{ env.BACKEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source --to=${{ env.BACKEND_IMAGE }}:latest
+          oc get bc ${{ env.BACKEND_IMAGE }} || \
+          oc new-build --name=${{ env.BACKEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source
           oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=. --follow
           oc rollout restart deployment/${{ env.BACKEND_IMAGE }}
 
       - name: Deploy Frontend
         working-directory: ./client
         run: |
-          oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=. --follow || \
-          oc new-build --name=${{ env.FRONTEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source --to=${{ env.FRONTEND_IMAGE }}:latest
+          oc get bc ${{ env.FRONTEND_IMAGE }} || \
+          oc new-build --name=${{ env.FRONTEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source
           oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=. --follow
           oc rollout restart deployment/${{ env.FRONTEND_IMAGE }}
 
+
       - name: Expose Services
         run: |
-          oc expose svc/${{ env.BACKEND_IMAGE }} --port=8000 --name=${{ env.BACKEND_IMAGE }}-route || true
-          oc expose svc/${{ env.FRONTEND_IMAGE }} --port=8080 --name=${{ env.FRONTEND_IMAGE }}-route || true
+          oc get route ${{ env.BACKEND_IMAGE }} || \
+          oc expose svc/${{ env.BACKEND_IMAGE }} --port=8000 --name=${{ env.BACKEND_IMAGE }}
+          oc get route ${{ env.FRONTEND_IMAGE }} || \
+          oc expose svc/${{ env.FRONTEND_IMAGE }} --port=8080 --name=${{ env.FRONTEND_IMAGE }}
 
       - name: Verify Routes
         run: |
