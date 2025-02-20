@@ -7,7 +7,7 @@ const NoteCard = ({ note, isSelected, onSelect }) => {
                 padding: '10px',
                 margin: '5px 0',
                 cursor: 'pointer',
-                backgroundColor: isSelected ? 'green' : '#F9E5BC',
+                backgroundColor: isSelected ? '#e0f7ff' : '#F9E5BC',
                 color: 'black',
             }}
         >
