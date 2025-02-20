@@ -45,7 +45,7 @@ jobs:
         run: |
           oc start-build ${{ env.FRONTEND_IMAGE }} --follow || \
           oc new-build --name=${{ env.FRONTEND_IMAGE }} --binary --strategy=source --to=${{ env.FRONTEND_IMAGE }}:latest
-          oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=./sclient --follow
+          oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=./client --follow
           oc rollout latest deployment/${{ env.FRONTEND_IMAGE }}
 
       - name: Expose Services
