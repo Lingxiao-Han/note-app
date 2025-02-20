@@ -62,6 +62,7 @@ jobs:
       - name: Verify Routes
         run: |
           echo "Backend route:"
-          oc get route ${{ env.BACKEND_IMAGE }}-route -o jsonpath='{.spec.host}'
+          oc get route ${{ env.BACKEND_IMAGE }} -o jsonpath='{.spec.host}'
           echo "Frontend route:"
-          oc get route ${{ env.FRONTEND_IMAGE }}-route -o jsonpath='{.spec.host}'
+          oc get route ${{ env.FRONTEND_IMAGE }} -o jsonpath='{.spec.host}'
+
