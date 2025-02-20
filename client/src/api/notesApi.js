@@ -1,8 +1,7 @@
 // src/api/notesApi.js
 import axios from 'axios';
 
-const PORT = 8000;
-const API_BASE = `http://localhost:${PORT}/notes`;
+const API_BASE = import.meta.env.VITE_API_URL;
 
 export const getNotes = () => axios.get(API_BASE);
 export const getNoteById = (id) => axios.get(`${API_BASE}/${id}`);
