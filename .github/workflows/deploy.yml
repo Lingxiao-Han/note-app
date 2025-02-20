@@ -38,23 +38,19 @@ jobs:
         run: |
           oc get builds -o name | xargs -r oc delete
 
-
       - name: Deploy Backend
-        working-directory: server
         run: |
           oc get bc ${{ env.BACKEND_IMAGE }} || \
-          oc new-build --name=${{ env.BACKEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source
-          oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=. --follow
+          oc new-build --name=${{ env.BACKEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source --context-dir=server
+          oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=$GITHUB_WORKSPACE/server --follow
           oc rollout restart deployment/${{ env.BACKEND_IMAGE }}
 
       - name: Deploy Frontend
-        working-directory: client
         run: |
           oc get bc ${{ env.FRONTEND_IMAGE }} || \
-          oc new-build --name=${{ env.FRONTEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source
-          oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=. --follow
+          oc new-build --name=${{ env.FRONTEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source --context-dir=client
+          oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=$GITHUB_WORKSPACE/client --follow
           oc rollout restart deployment/${{ env.FRONTEND_IMAGE }}
-
 
       - name: Expose Services
         run: |
