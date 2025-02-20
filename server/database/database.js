@@ -10,7 +10,7 @@ class NoteDatabase {
     getById(id) {
         const note = this.notes[id];
         if (note) {
-            return note.content;
+            return note;
         }
         return null;
     }

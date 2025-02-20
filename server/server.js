@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+require('dotenv').config({ path: '../.env' });
 
 
 const NoteDatabase = require("./database/database");
@@ -15,5 +16,5 @@ const notesService = new NotesService(noteDatabase);
 const notesController = new NoteController(notesService);
 
 app.use('/', notesController);
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
