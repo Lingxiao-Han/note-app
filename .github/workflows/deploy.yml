@@ -35,18 +35,20 @@ jobs:
           oc get builds -o name | xargs oc delete || true
 
       - name: Deploy Backend
+        working-directory: ./server
         run: |
-          oc start-build ${{ env.BACKEND_IMAGE }} --follow || \
-          oc new-build --name=${{ env.BACKEND_IMAGE }} --binary --strategy=source --to=${{ env.BACKEND_IMAGE }}:latest
-          oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=./server --follow
+          oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=. --follow || \
+          oc new-build --name=${{ env.BACKEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source --to=${{ env.BACKEND_IMAGE }}:latest
+          oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=. --follow
           oc rollout restart deployment/${{ env.BACKEND_IMAGE }}
 
       - name: Deploy Frontend
+        working-directory: ./client
         run: |
-          oc start-build ${{ env.FRONTEND_IMAGE }} --follow || \
-          oc new-build --name=${{ env.FRONTEND_IMAGE }} --binary --strategy=source --to=${{ env.FRONTEND_IMAGE }}:latest
-          oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=./client --follow
-          oc rollout latest deployment/${{ env.FRONTEND_IMAGE }}
+          oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=. --follow || \
+          oc new-build --name=${{ env.FRONTEND_IMAGE }} --image-stream=openshift/nodejs:18-ubi8 --binary --strategy=source --to=${{ env.FRONTEND_IMAGE }}:latest
+          oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=. --follow
+          oc rollout restart deployment/${{ env.FRONTEND_IMAGE }}
 
       - name: Expose Services
         run: |
