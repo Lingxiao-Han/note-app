@@ -1,0 +1,61 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  OPENSHIFT_PROJECT: ${{ secrets.OPENSHIFT_PROJECT }}
+  BACKEND_IMAGE: notes-backend
+  FRONTEND_IMAGE: notes-frontend
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install OpenShift CLI
+        run: |
+          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz
+          tar -xvzf openshift-client-linux.tar.gz
+          sudo mv oc /usr/local/bin/
+          oc version
+
+      - name: Login to OpenShift
+        run: |
+          oc login ${{ secrets.OPENSHIFT_SERVER }} --token=${{ secrets.OPENSHIFT_TOKEN }}
+          oc project ${{ env.OPENSHIFT_PROJECT }}
+
+      - name: Clean old builds
+        run: |
+          oc get builds -o name | xargs oc delete || true
+
+      - name: Deploy Backend
+        run: |
+          oc start-build ${{ env.BACKEND_IMAGE }} --follow || \
+          oc new-build --name=${{ env.BACKEND_IMAGE }} --binary --strategy=source --to=${{ env.BACKEND_IMAGE }}:latest
+          oc start-build ${{ env.BACKEND_IMAGE }} --from-dir=server --follow
+          oc rollout latest dc/${{ env.BACKEND_IMAGE }}
+
+      - name: Deploy Frontend
+        run: |
+          oc start-build ${{ env.FRONTEND_IMAGE }} --follow || \
+          oc new-build --name=${{ env.FRONTEND_IMAGE }} --binary --strategy=source --to=${{ env.FRONTEND_IMAGE }}:latest
+          oc start-build ${{ env.FRONTEND_IMAGE }} --from-dir=client --follow
+          oc rollout latest dc/${{ env.FRONTEND_IMAGE }}
+
+      - name: Expose Services
+        run: |
+          oc expose svc/${{ env.BACKEND_IMAGE }} --port=8000 --name=${{ env.BACKEND_IMAGE }}-route || true
+          oc expose svc/${{ env.FRONTEND_IMAGE }} --port=8080 --name=${{ env.FRONTEND_IMAGE }}-route || true
+
+      - name: Verify Routes
+        run: |
+          echo "Backend route:"
+          oc get route ${{ env.BACKEND_IMAGE }}-route -o jsonpath='{.spec.host}'
+          echo "Frontend route:"
+          oc get route ${{ env.FRONTEND_IMAGE }}-route -o jsonpath='{.spec.host}'
