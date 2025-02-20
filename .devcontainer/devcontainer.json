@@ -21,5 +21,5 @@
       }
     }
   },
-  "postCreateCommand": "cd server && npm install && cd ../client && npm install && npm install axios"
+  "postCreateCommand": "bash .devcontainer/setup.sh"
 }
