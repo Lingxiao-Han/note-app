@@ -23,7 +23,7 @@ tar -xvzf oc.tgz
 $SUDO mv oc /usr/bin/oc
 rm -f oc.tgz README.md kubectl
 popd
-cd server && npm install && cd ../client && npm install && npm install axios
+cd server && npm install && npm install mongodb --save && cd ../client && npm install && npm install axios
 
 MONGOSH_VER="1.10.5"
 MONGOSH_DEB="mongodb-mongosh_${MONGOSH_VER}_arm64.deb"
@@ -35,7 +35,7 @@ $SUDO dpkg -i /tmp/${MONGOSH_DEB}
 
 rm -f /tmp/${MONGOSH_DEB}
 
-npm install mongodb
+npm install mongodb --save
 
 mongosh --version
 
