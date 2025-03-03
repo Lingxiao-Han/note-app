@@ -33,7 +33,7 @@ class NoteDatabase {
         const objectId = new ObjectId(id);
         try {
             const note = await this.collection.findOne({ _id: objectId });
-            return note.content
+            return note
         } catch (error) {
             console.error('Invalid ID format:', error);
             return null;
@@ -47,7 +47,7 @@ class NoteDatabase {
             note = { content: note };
         }
         const result = await this.collection.insertOne(note);
-        return this.getById(result.insertedId);
+        return this.getById(new ObjectId(result.insertedId));
     }
 
     async update(id, noteData) {

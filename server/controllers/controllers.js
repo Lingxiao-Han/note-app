@@ -46,13 +46,18 @@ function NoteController(notesService) {
     });
 
     router.delete('/notes/:id', async (req, res) => {
-        const deletedNote = await notesService.deleteNote(req.params.id);
-        if (!deletedNote) {
-            console.log(`Note ID: ${req.params.id} does not exits!`);
-            return res.status(404).send('Note not found');
+        try {
+            const deletedNote = await notesService.deleteNote(req.params.id);
+            if (!deletedNote) {
+                console.log(`Note ID: ${req.params.id} does not exits!`);
+                return res.status(404).send('Note not found');
+            }
+            console.log(`Successfully DELETED note ID: ${req.params.id}`);
+            res.json(deletedNote);
+        } catch (error) {
+            console.error('Error deleting note:', error);
+            return res.status(500).json({ error: error.message });
         }
-        console.log(`Successfully DELETED note ID: ${req.params.id}`);
-        res.json(deletedNote);
     });
 
     return router;

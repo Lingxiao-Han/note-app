@@ -11,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const noteDatabase = new NoteDatabase("mongodb://host.docker.internal:27017/", "note-app-db");
+const noteDatabase = new NoteDatabase(process.env.MONGO_URI, "note-app-db");
 const notesService = new NotesService(noteDatabase);
 const notesController = new NoteController(notesService);
 
