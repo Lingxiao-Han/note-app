@@ -1,43 +1,69 @@
+const { MongoClient, ObjectId } = require('mongodb');
+
 class NoteDatabase {
-    constructor() {
-        this.notes = {};
+    /**
+     * @param {string} connectionString - Your MongoDB connection string.
+     * @param {string} dbName - The name of the database.
+     */
+    constructor(connectionString, dbName = 'note-app-db') {
+        this.connectionString = connectionString;
+        this.dbName = dbName;
+        this.client = new MongoClient(this.connectionString);
+        this.db = null;
+        this.collection = null;
     }
 
-    getAll() {
-        return Object.values(this.notes);
-    }
-
-    getById(id) {
-        const note = this.notes[id];
-        if (note) {
-            return note;
+    async connect() {
+        if (!this.db) {
+            await this.client.connect();
+            this.db = this.client.db(this.dbName);
+            this.collection = this.db.collection('notes');
         }
-        return null;
     }
 
-    create(id, note) {
-        if (note != null) {
-            this.notes[id] = note;
-        }
-        return note;
+    async getAll() {
+        await this.connect();
+        const dataset = await this.collection.find({}).toArray();
+        console.log(dataset);
+        return dataset;
     }
 
-    update(id, noteData) {
-        const note = this.notes[id];
-        if (note) {
-            this.notes[id] = { ...this.notes[id], ...noteData };
-            return this.notes[id];
+    async getById(id) {
+        await this.connect();
+        const objectId = new ObjectId(id);
+        try {
+            const note = await this.collection.findOne({ _id: objectId });
+            return note.content
+        } catch (error) {
+            console.error('Invalid ID format:', error);
+            return null;
         }
-        return null;
     }
 
-    delete(id) {
-        const note = this.notes[id];
-        delete this.notes[id];
-        if (note) {
-            return note;
+    async create(note) {
+        await this.connect();
+        // If a string is provided, wrap it in an object with a "content" field.
+        if (typeof note === 'string') {
+            note = { content: note };
         }
-        return null;
+        const result = await this.collection.insertOne(note);
+        return this.getById(result.insertedId);
+    }
+
+    async update(id, noteData) {
+        await this.connect();
+        const result = await this.collection.findOneAndUpdate(
+            { _id: new ObjectId(id) },
+            { $set: noteData },
+            { returnDocument: 'after' }
+        );
+        return result;
+    }
+
+    async delete(id) {
+        await this.connect();
+        const result = await this.collection.findOneAndDelete({ _id: new ObjectId(id) });
+        return result;
     }
 }
 
