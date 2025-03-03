@@ -3,15 +3,24 @@ const express = require('express');
 function NoteController(notesService) {
     const router = express.Router();
 
-    router.get('/notes', (req, res) => {
+    router.get('/notes', async (req, res) => {
         console.log("Get All Notes");
-        const notes = notesService.getAllNotes();
-        res.json(notes);
+        try {
+            const notes = await notesService.getAllNotes();
+            const formattedNotes = notes.map(note => ({
+                ...note,
+                _id: note._id.toString()
+            }));
+            res.json(formattedNotes);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     });
 
-    router.get('/notes/:id', (req, res) => {
+
+    router.get('/notes/:id', async (req, res) => {
         console.log("Trying to get note ID: ", req.params.id);
-        const note = notesService.getNoteById(req.params.id);
+        const note = await notesService.getNoteById(req.params.id);
         if (!note) {
             console.log(`Note ID: ${req.params.id} does not exits!`);
             return res.status(404).send('Note not found');
@@ -20,14 +29,14 @@ function NoteController(notesService) {
         res.json(note);
     });
 
-    router.post('/notes', (req, res) => {
+    router.post('/notes', async (req, res) => {
         console.log('Posting note with Request Body:', req.body);
-        const newNote = notesService.createNote(req.body);
+        const newNote = await notesService.createNote(req.body);
         res.status(201).json(newNote);
     });
 
-    router.put('/notes/:id', (req, res) => {
-        const updatedNote = notesService.updateNote(req.params.id, req.body);
+    router.put('/notes/:id', async (req, res) => {
+        const updatedNote = await notesService.updateNote(req.params.id, req.body);
         if (!updatedNote) {
             console.log(`Note ID: ${req.params.id} does not exits!`);
             return res.status(404).send('Note not found');
@@ -36,14 +45,19 @@ function NoteController(notesService) {
         res.json(updatedNote);
     });
 
-    router.delete('/notes/:id', (req, res) => {
-        const deletedNote = notesService.deleteNote(req.params.id);
-        if (!deletedNote) {
-            console.log(`Note ID: ${req.params.id} does not exits!`);
-            return res.status(404).send('Note not found');
+    router.delete('/notes/:id', async (req, res) => {
+        try {
+            const deletedNote = await notesService.deleteNote(req.params.id);
+            if (!deletedNote) {
+                console.log(`Note ID: ${req.params.id} does not exits!`);
+                return res.status(404).send('Note not found');
+            }
+            console.log(`Successfully DELETED note ID: ${req.params.id}`);
+            res.json(deletedNote);
+        } catch (error) {
+            console.error('Error deleting note:', error);
+            return res.status(500).json({ error: error.message });
         }
-        console.log(`Successfully DELETED note ID: ${req.params.id}`);
-        res.json(deletedNote);
     });
 
     return router;

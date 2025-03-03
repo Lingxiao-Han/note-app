@@ -12,21 +12,29 @@ const Home = () => {
     }, []);
 
     const fetchNotes = () => {
+        setNotes([]);
         getNotes()
             .then(response => {
-                setNotes(response.data);
+                const formattedNotes = response.data.map(note => ({
+                    id: note._id,
+                    content: note.content
+                }));
+                console.log("formattedNotes note:", formattedNotes);
+                setNotes(formattedNotes);
             })
             .catch(error => {
                 console.error("Error fetching notes:", error);
             });
     };
 
+
     const handleCreate = () => {
         const content = prompt("Enter note content:");
         if (content) {
             createNote({ content })
                 .then(response => {
-                    const newNote = { id: response.data, content };
+                    console.log("Note created:", response);
+                    const newNote = { id: response.data._id, content: response.data.content };
                     setNotes([...notes, newNote]);
                 })
                 .catch(error => {
@@ -36,11 +44,13 @@ const Home = () => {
     };
 
     const handleDelete = (note) => {
+        console.log("Deleting note:", note);
         if (!note) return;
         if (window.confirm("Are you sure you want to delete this note?")) {
+
             deleteNote(note.id)
                 .then(() => {
-                    setNotes(notes.filter(n => n.id !== note.id));
+                    fetchNotes();
                     setSelectedNote(null);
                 })
                 .catch(error => {
@@ -58,6 +68,7 @@ const Home = () => {
                     const updatedNote = { id: note.id, content: newContent };
                     setNotes(notes.map(n => (n.id === note.id ? updatedNote : n)));
                     setSelectedNote(updatedNote);
+                    fetchNotes();
                 })
                 .catch(error => {
                     console.error("Error updating note:", error);

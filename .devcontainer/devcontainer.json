@@ -9,7 +9,8 @@
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
-        "postman.postman-for-vscode"
+        "postman.postman-for-vscode",
+        "mongodb.mongodb-vscode"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
